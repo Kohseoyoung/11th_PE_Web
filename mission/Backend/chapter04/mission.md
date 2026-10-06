@@ -1,0 +1,6 @@
+- 3주차 Raw SQL 방식과 비교해 바뀐 점
+    1. **SQL 작성 방식이 바뀌었다.** 3주차에는 `JdbcTemplate`으로 `SELECT * FROM book`, `INSERT INTO book (...) VALUES (?, ?, ?, true)` 같은 SQL 문자열과 물음표 파라미터 순서를 직접 관리했다. 4주차에는 `BookEntity`와 `JpaRepository`를 사용해 `findAllByOrderByBookIdDesc()`, `save()`만으로 조회와 저장을 구현했고, SQL은 JPA가 대신 생성한다.
+    2. **테이블을 객체로 표현하게 되었다.** 3주차에는 결과를 `List<Map<String, Object>>`로 받아 컬럼명이 키로 그대로 드러났지만, 4주차에는 `book`, `category` 테이블을 `BookEntity`, `CategoryEntity`로 매핑하고 `@ManyToOne`으로 `category 1 : N book` 관계를 코드로 표현했다.
+    3. **요청과 응답을 DTO로 분리했다.** 3주차에는 `Map`으로 요청을 받고 DB 컬럼 구조 그대로 응답했다. 4주차에는 `BookRequest`로 받을 값을 `categoryId`, `title`, `description`으로 제한하고, `BookResponse`로 `bookId`, `title`, `description`, `categoryName`, `isAvailable`만 골라 응답해 DB 구조와 API 계약을 분리했다.
+    4. **검증과 예외 처리가 추가되었다.** `@NotNull`, `@NotBlank`, `@Size`와 `@Valid`로 잘못된 요청을 Service에 도달하기 전에 400으로 걸러내고, 존재하지 않는 `categoryId`는 Service에서 예외를 던져 `GlobalExceptionHandler`가 404로 응답하도록 구현했다. 3주차에는 이런 검증 없이 잘못된 값이 그대로 DB까지 전달될 수 있었다.
+    5. **ORM을 써도 DB 지식은 여전히 필요하다고 느꼈다.** ORM은 SQL을 없애는 것이 아니라 대신 생성해 주는 것이어서, 엔티티와 테이블의 컬럼명이 다르면 `ddl-auto: validate`에서 서버가 시작되지 않았다. ERD와 PK/FK 관계, 트랜잭션을 이해해야 올바르게 매핑할 수 있었다.
